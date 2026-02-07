@@ -302,21 +302,21 @@ def update_character(char_name: str, changes: Dict[str, Any], session_id: str) -
         if 'status' in changes:
             content = re.sub(
                 r'(status:\s*).*',
-                f"\\1{changes['status']}",
+                f"\\g<1>{changes['status']}",
                 content
             )
         
         # Update last_updated
         content = re.sub(
             r'(last_updated:\s*).*',
-            f"\\1{datetime.now().strftime('%Y-%m-%d')}",
+            f"\\g<1>{datetime.now().strftime('%Y-%m-%d')}",
             content
         )
         
         # Update canon_version
         content = re.sub(
             r'(canon_version:\s*).*',
-            f"\\1{session_id}",
+            f"\\g<1>{session_id}",
             content
         )
         
@@ -362,14 +362,14 @@ def update_tension(tension_name: str, changes: Dict[str, Any], session_id: str) 
         if 'status' in changes:
             content = re.sub(
                 r'(status:\s*).*',
-                f"\\1{changes['status']}",
+                f"\\g<1>{changes['status']}",
                 content
             )
         
         # Update last_updated
         content = re.sub(
             r'(last_updated:\s*).*',
-            f"\\1{datetime.now().strftime('%Y-%m-%d')}",
+            f"\\g<1>{datetime.now().strftime('%Y-%m-%d')}",
             content
         )
         
