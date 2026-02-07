@@ -197,6 +197,7 @@ Monitors session files and updates canon based on CANON_UPDATE YAML blocks
 import os
 import re
 import yaml
+import subprocess
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional
@@ -208,6 +209,30 @@ SESSIONS_DIR = REPO_ROOT / "sessions"
 CHARS_DIR = REPO_ROOT / "chars"
 TENSIONS_DIR = REPO_ROOT / "tensions"
 EVENTS_DIR = REPO_ROOT / "events"
+
+# Cache for character lookups
+_CHARACTER_CACHE = {}
+
+def build_character_cache():
+    """Build a mapping of character filenames to their full paths"""
+    global _CHARACTER_CACHE
+    _CHARACTER_CACHE = {}
+
+    if not CHARS_DIR.exists():
+        return
+
+    # Search all character subdirectories
+    for subdir in CHARS_DIR.iterdir():
+        if subdir.is_dir():
+            for filepath in subdir.glob("*.md"):
+                # Store the first one we find for a given filename
+                if filepath.name not in _CHARACTER_CACHE:
+                    _CHARACTER_CACHE[filepath.name] = filepath
+
+    # Also check direct in chars/
+    for filepath in CHARS_DIR.glob("*.md"):
+        if filepath.name not in _CHARACTER_CACHE:
+            _CHARACTER_CACHE[filepath.name] = filepath
 
 class Colors:
     GREEN = '\033[92m'
@@ -250,6 +275,10 @@ def parse_canon_update(session_file: Path) -> Optional[Dict[str, Any]]:
 
 def find_character_file(char_name: str) -> Optional[Path]:
     """Search for character file by name (handles aliases)"""
+    # Initialize cache if empty
+    if not _CHARACTER_CACHE:
+        build_character_cache()
+
     # Common aliases
     alias_map = {
         'Scraps': 'scraps_harper.md',
@@ -273,17 +302,9 @@ def find_character_file(char_name: str) -> Optional[Path]:
         # Convert to snake_case filename
         filename = char_name.lower().replace(' ', '_').replace('-', '_') + '.md'
     
-    # Search all character subdirectories
-    for subdir in CHARS_DIR.iterdir():
-        if subdir.is_dir():
-            filepath = subdir / filename
-            if filepath.exists():
-                return filepath
-    
-    # Try direct in chars/
-    filepath = CHARS_DIR / filename
-    if filepath.exists():
-        return filepath
+    # Check cache
+    if filename in _CHARACTER_CACHE:
+        return _CHARACTER_CACHE[filename]
     
     print(f"{Colors.YELLOW}Warning: Character file not found for '{char_name}'{Colors.RESET}")
     return None
@@ -427,11 +448,11 @@ def git_commit(session_id: str, summary: str):
     """Commit changes to git"""
     try:
         # Git add all changes
-        os.system('git add .')
+        subprocess.run(['git', 'add', '.'], check=True)
         
         # Create commit message
         commit_msg = f"Update canon: Session {session_id}\n\n{summary}"
-        os.system(f'git commit -m "{commit_msg}"')
+        subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
         
         print(f"{Colors.GREEN}✓ Git commit created{Colors.RESET}")
     
