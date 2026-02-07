@@ -21,8 +21,17 @@ import re
 from pathlib import Path
 from typing import Set, Dict, List
 
+def find_repo_root() -> Path:
+    """Find the repository root by searching for marker files."""
+    current_path = Path(__file__).resolve().parent
+    for _ in range(5):
+        if (current_path / ".git").exists() or (current_path / "meta").exists():
+            return current_path
+        current_path = current_path.parent
+    return Path(__file__).resolve().parent.parent
+
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent  # Assumes script is in scripts/
+REPO_ROOT = find_repo_root()
 TAGS_FILE = REPO_ROOT / "meta" / "tags.md"
 TAG_VARIATIONS_FILE = REPO_ROOT / "meta" / "tag_variations.md"
 
@@ -202,8 +211,17 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 import time
 
+def find_repo_root() -> Path:
+    """Find the repository root by searching for marker files."""
+    current_path = Path(__file__).resolve().parent
+    for _ in range(5):
+        if (current_path / ".git").exists() or (current_path / "meta").exists():
+            return current_path
+        current_path = current_path.parent
+    return Path(__file__).resolve().parent.parent
+
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent
+REPO_ROOT = find_repo_root()
 SESSIONS_DIR = REPO_ROOT / "sessions"
 CHARS_DIR = REPO_ROOT / "chars"
 TENSIONS_DIR = REPO_ROOT / "tensions"
@@ -541,8 +559,17 @@ from pathlib import Path
 from typing import Dict, Set, List
 from collections import defaultdict
 
+def find_repo_root() -> Path:
+    """Find the repository root by searching for marker files."""
+    current_path = Path(__file__).resolve().parent
+    for _ in range(5):
+        if (current_path / ".git").exists() or (current_path / "meta").exists():
+            return current_path
+        current_path = current_path.parent
+    return Path(__file__).resolve().parent.parent
+
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent
+REPO_ROOT = find_repo_root()
 CHARS_DIR = REPO_ROOT / "chars"
 LOCATIONS_DIR = REPO_ROOT / "locations"
 FACTIONS_DIR = REPO_ROOT / "factions"
