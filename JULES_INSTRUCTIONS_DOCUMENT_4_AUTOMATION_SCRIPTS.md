@@ -18,21 +18,21 @@ Ensures all tags in markdown files exist in meta/tags.md or meta/tag_variations.
 
 import os
 import re
+import logging
 from pathlib import Path
 from typing import Set, Dict, List
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s: %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent  # Assumes script is in scripts/
 TAGS_FILE = REPO_ROOT / "meta" / "tags.md"
 TAG_VARIATIONS_FILE = REPO_ROOT / "meta" / "tag_variations.md"
-
-# Colors for terminal output
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
 
 def load_valid_tags() -> Set[str]:
     """Load all valid tags from tags.md and tag_variations.md"""
@@ -45,9 +45,9 @@ def load_valid_tags() -> Set[str]:
             # Find all #Tags in the file
             tags = re.findall(r'#\w+', content)
             valid_tags.update(tags)
-            print(f"{Colors.BLUE}Loaded {len(tags)} canonical tags from tags.md{Colors.RESET}")
+            logger.info(f"Loaded {len(tags)} canonical tags from tags.md")
     else:
-        print(f"{Colors.RED}ERROR: {TAGS_FILE} not found!{Colors.RESET}")
+        logger.error(f"{TAGS_FILE} not found!")
         return set()
     
     # Load tag variations
@@ -56,9 +56,9 @@ def load_valid_tags() -> Set[str]:
             content = f.read()
             variations = re.findall(r'#\w+', content)
             valid_tags.update(variations)
-            print(f"{Colors.BLUE}Loaded {len(variations)} tag variations from tag_variations.md{Colors.RESET}")
+            logger.info(f"Loaded {len(variations)} tag variations from tag_variations.md")
     else:
-        print(f"{Colors.YELLOW}WARNING: {TAG_VARIATIONS_FILE} not found, using only canonical tags{Colors.RESET}")
+        logger.warning(f"{TAG_VARIATIONS_FILE} not found, using only canonical tags")
     
     return valid_tags
 
@@ -84,7 +84,7 @@ def extract_tags_from_file(filepath: Path) -> Set[str]:
         return yaml_tags | inline_tags
     
     except Exception as e:
-        print(f"{Colors.RED}Error reading {filepath}: {e}{Colors.RESET}")
+        logger.error(f"Error reading {filepath}: {e}")
         return set()
 
 def validate_repository() -> Dict[str, List[str]]:
@@ -92,10 +92,10 @@ def validate_repository() -> Dict[str, List[str]]:
     valid_tags = load_valid_tags()
     
     if not valid_tags:
-        print(f"{Colors.RED}No valid tags loaded. Aborting validation.{Colors.RESET}")
+        logger.error("No valid tags loaded. Aborting validation.")
         return {}
     
-    print(f"\n{Colors.BLUE}Validating repository...{Colors.RESET}\n")
+    logger.info("Validating repository...")
     
     errors = {}
     files_checked = 0
@@ -116,7 +116,7 @@ def validate_repository() -> Dict[str, List[str]]:
     for dir_name in check_dirs:
         dir_path = REPO_ROOT / dir_name
         if not dir_path.exists():
-            print(f"{Colors.YELLOW}Skipping {dir_name}/ (not found){Colors.RESET}")
+            logger.warning(f"Skipping {dir_name}/ (not found)")
             continue
         
         for filepath in dir_path.rglob("*.md"):
@@ -132,47 +132,47 @@ def validate_repository() -> Dict[str, List[str]]:
                 relative_path = filepath.relative_to(REPO_ROOT)
                 errors[str(relative_path)] = sorted(list(invalid))
     
-    print(f"{Colors.BLUE}Checked {files_checked} files{Colors.RESET}\n")
+    logger.info(f"Checked {files_checked} files")
     return errors
 
 def display_results(errors: Dict[str, List[str]]):
     """Display validation results"""
     if not errors:
-        print(f"{Colors.GREEN}✓ ALL TAGS VALID{Colors.RESET}")
-        print(f"{Colors.GREEN}No invalid tags found. Repository is consistent.{Colors.RESET}")
+        logger.info("✓ ALL TAGS VALID")
+        logger.info("No invalid tags found. Repository is consistent.")
         return True
     
-    print(f"{Colors.RED}✗ TAG VALIDATION FAILED{Colors.RESET}")
-    print(f"{Colors.RED}Found invalid tags in {len(errors)} file(s):{Colors.RESET}\n")
+    logger.error("✗ TAG VALIDATION FAILED")
+    logger.error(f"Found invalid tags in {len(errors)} file(s):")
     
     for filepath, invalid_tags in sorted(errors.items()):
-        print(f"{Colors.YELLOW}{filepath}:{Colors.RESET}")
+        logger.warning(f"{filepath}:")
         for tag in invalid_tags:
-            print(f"  {Colors.RED}✗{Colors.RESET} {tag}")
-        print()
+            logger.warning(f"  ✗ {tag}")
     
-    print(f"{Colors.BLUE}Action Required:{Colors.RESET}")
-    print("1. Add missing tags to meta/tags.md (if they should be canonical)")
-    print("2. Add variations to meta/tag_variations.md (if they're acceptable alternatives)")
-    print("3. Fix typos in files (if tags are misspelled)")
+    logger.info("Action Required:")
+    logger.info("1. Add missing tags to meta/tags.md (if they should be canonical)")
+    logger.info("2. Add variations to meta/tag_variations.md (if they're acceptable alternatives)")
+    logger.info("3. Fix typos in files (if tags are misspelled)")
     
     return False
 
 def main():
     """Main validation function"""
-    print(f"\n{Colors.BLUE}{'='*60}{Colors.RESET}")
-    print(f"{Colors.BLUE}STRAY DOGS WORLDENGINE - TAG VALIDATOR{Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*60}{Colors.RESET}\n")
+    logger.info(f"\n{'='*60}")
+    logger.info("STRAY DOGS WORLDENGINE - TAG VALIDATOR")
+    logger.info(f"{'='*60}\n")
     
     errors = validate_repository()
     success = display_results(errors)
     
-    print(f"\n{Colors.BLUE}{'='*60}{Colors.RESET}\n")
+    logger.info(f"\n{'='*60}\n")
     
     return 0 if success else 1
 
 if __name__ == "__main__":
     exit(main())
+
 ```
 
 **Usage**:
