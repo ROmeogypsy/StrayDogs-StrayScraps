@@ -195,6 +195,7 @@ Monitors session files and updates canon based on CANON_UPDATE YAML blocks
 """
 
 import os
+import subprocess
 import re
 import yaml
 from pathlib import Path
@@ -427,16 +428,18 @@ def git_commit(session_id: str, summary: str):
     """Commit changes to git"""
     try:
         # Git add all changes
-        os.system('git add .')
+        subprocess.run(['git', 'add', '.'], check=True)
         
         # Create commit message
         commit_msg = f"Update canon: Session {session_id}\n\n{summary}"
-        os.system(f'git commit -m "{commit_msg}"')
+        subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
         
         print(f"{Colors.GREEN}✓ Git commit created{Colors.RESET}")
     
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         print(f"{Colors.RED}Git commit failed: {e}{Colors.RESET}")
+    except Exception as e:
+        print(f"{Colors.RED}An unexpected error occurred during git commit: {e}{Colors.RESET}")
 
 def process_session_file(session_file: Path):
     """Process a single session file"""
