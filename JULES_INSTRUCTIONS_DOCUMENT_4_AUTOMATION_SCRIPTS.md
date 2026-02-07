@@ -201,6 +201,12 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional
 import time
+try:
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
+except ImportError:
+    print("Error: watchdog library not found. Please install it with: pip install watchdog")
+    exit(1)
 
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent
@@ -457,6 +463,20 @@ def process_session_file(session_file: Path):
         summary = canon_data.get('scene_summary', 'Canon updates applied')
         git_commit(session_id, summary)
 
+class SessionHandler(FileSystemEventHandler):
+    def __init__(self, processed_files):
+        self.processed_files = processed_files
+
+    def on_created(self, event):
+        if event.is_directory:
+            return
+
+        filepath = Path(event.src_path)
+        if filepath.suffix == ".md" and not filepath.name.startswith("000_"):
+            if filepath not in self.processed_files:
+                process_session_file(filepath)
+                self.processed_files.add(filepath)
+
 def watch_sessions():
     """Monitor sessions directory for new files"""
     print(f"\n{Colors.BLUE}{'='*60}{Colors.RESET}")
@@ -478,22 +498,18 @@ def watch_sessions():
     print(f"\n{Colors.GREEN}Watching for new sessions... (Ctrl+C to stop){Colors.RESET}\n")
     
     # Watch for new files
+    event_handler = SessionHandler(processed_files)
+    observer = Observer()
+    observer.schedule(event_handler, path=str(SESSIONS_DIR), recursive=False)
+    observer.start()
+
     try:
         while True:
-            time.sleep(5)  # Check every 5 seconds
-            
-            if not SESSIONS_DIR.exists():
-                continue
-            
-            for session_file in SESSIONS_DIR.glob("*.md"):
-                if session_file.name.startswith('000_'):
-                    continue
-                if session_file not in processed_files:
-                    process_session_file(session_file)
-                    processed_files.add(session_file)
-    
+            time.sleep(1)
     except KeyboardInterrupt:
+        observer.stop()
         print(f"\n{Colors.BLUE}Engine sync stopped{Colors.RESET}\n")
+    observer.join()
 
 def main():
     """Main function"""
@@ -744,12 +760,20 @@ python scripts/engine_sync.py
 
 ## **REQUIREMENTS**
 
-All scripts use Python 3.7+ standard library only. No external dependencies required.
+Scripts use Python 3.7+.
 
-**Required Python modules** (all standard library):
+**External Dependencies**:
+- `PyYAML`: For parsing YAML blocks.
+- `watchdog`: For event-driven monitoring (engine_sync.py).
+
+Install with:
+```bash
+pip install pyyaml watchdog
+```
+
+**Standard Library Modules**:
 - `os`
 - `re`
-- `yaml` (included in Python 3.x)
 - `pathlib`
 - `typing`
 - `collections`
