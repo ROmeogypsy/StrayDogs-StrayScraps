@@ -218,6 +218,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional, List
 import time
 import shlex
+import logging
 
 # Configuration
 
@@ -274,13 +275,13 @@ def parse_canon_update(session_file: Path) -> Optional[Dict[str, Any]]:
         return canon_data
     
     except FileNotFoundError:
-        print(f"{Colors.RED}Error: File not found {session_file}{Colors.RESET}")
+        logging.error(f"{Colors.RED}Error: File not found {session_file}{Colors.RESET}")
         return None
     except yaml.YAMLError as e:
-        print(f"{Colors.RED}Error parsing YAML in {session_file}: {e}{Colors.RESET}")
+        logging.error(f"{Colors.RED}Error parsing YAML in {session_file}: {e}{Colors.RESET}")
         return None
     except Exception as e:
-        print(f"{Colors.RED}Unexpected error parsing {session_file}: {e}{Colors.RESET}")
+        logging.error(f"{Colors.RED}Unexpected error parsing {session_file}: {e}{Colors.RESET}")
         return None
 
 def find_character_file(char_name: str) -> Optional[Path]:
@@ -320,7 +321,7 @@ def find_character_file(char_name: str) -> Optional[Path]:
     if filepath.exists():
         return filepath
     
-    print(f"{Colors.YELLOW}Warning: Character file not found for '{char_name}'{Colors.RESET}")
+    logging.warning(f"{Colors.YELLOW}Warning: Character file not found for '{char_name}'{Colors.RESET}")
     return None
 
 def update_character(char_name: str, changes: Dict[str, Any], session_id: str) -> Optional[Path]:
@@ -372,11 +373,11 @@ def update_character(char_name: str, changes: Dict[str, Any], session_id: str) -
         with open(char_file, 'w', encoding='utf-8') as f:
             f.write(content)
         
-        print(f"{Colors.GREEN}✓ Updated {char_name}{Colors.RESET}")
+        logging.info(f"{Colors.GREEN}✓ Updated {char_name}{Colors.RESET}")
         return char_file
     
     except Exception as e:
-        print(f"{Colors.RED}Error updating {char_name}: {e}{Colors.RESET}")
+        logging.error(f"{Colors.RED}Error updating {char_name}: {e}{Colors.RESET}")
         return None
 
 def update_tension(tension_name: str, changes: Dict[str, Any], session_id: str) -> Optional[Path]:
@@ -386,7 +387,7 @@ def update_tension(tension_name: str, changes: Dict[str, Any], session_id: str) 
     tension_file = TENSIONS_DIR / filename
     
     if not tension_file.exists():
-        print(f"{Colors.YELLOW}Warning: Tension file not found for '{tension_name}'{Colors.RESET}")
+        logging.warning(f"{Colors.YELLOW}Warning: Tension file not found for '{tension_name}'{Colors.RESET}")
         return None
     
     try:
@@ -423,16 +424,16 @@ def update_tension(tension_name: str, changes: Dict[str, Any], session_id: str) 
         with open(tension_file, 'w', encoding='utf-8') as f:
             f.write(content)
         
-        print(f"{Colors.GREEN}✓ Updated tension: {tension_name}{Colors.RESET}")
+        logging.info(f"{Colors.GREEN}✓ Updated tension: {tension_name}{Colors.RESET}")
         return tension_file
     
     except Exception as e:
-        print(f"{Colors.RED}Error updating tension {tension_name}: {e}{Colors.RESET}")
+        logging.error(f"{Colors.RED}Error updating tension {tension_name}: {e}{Colors.RESET}")
         return None
 
 def apply_canon_updates(canon_data: Dict[str, Any], session_id: str) -> List[Path]:
     """Apply all canon updates from session"""
-    print(f"\n{Colors.BLUE}Applying canon updates from {session_id}...{Colors.RESET}\n")
+    logging.info(f"\n{Colors.BLUE}Applying canon updates from {session_id}...{Colors.RESET}\n")
     
     modified_files = []
     
@@ -454,11 +455,11 @@ def apply_canon_updates(canon_data: Dict[str, Any], session_id: str) -> List[Pat
     if 'new_events' in canon_data:
         for event in canon_data['new_events']:
             # This would create new event files - simplified for now
-            print(f"{Colors.BLUE}→ New event logged: {event.get('title', 'Unnamed Event')}{Colors.RESET}")
+            logging.info(f"{Colors.BLUE}→ New event logged: {event.get('title', 'Unnamed Event')}{Colors.RESET}")
             # If creating new files, append paths here
             # modified_files.append(new_event_path)
     
-    print(f"\n{Colors.GREEN}Applied {len(modified_files)} canon update(s){Colors.RESET}")
+    logging.info(f"\n{Colors.GREEN}Applied {len(modified_files)} canon update(s){Colors.RESET}")
     return modified_files
 
 def git_commit(session_id: str, summary: str, modified_files: List[Path] = None):
@@ -477,21 +478,21 @@ def git_commit(session_id: str, summary: str, modified_files: List[Path] = None)
         commit_msg = f"Update canon: Session {session_id}\n\n{summary}"
         os.system(f'git commit -m "{commit_msg}"')
         
-        print(f"{Colors.GREEN}✓ Git commit created{Colors.RESET}")
+        logging.info(f"{Colors.GREEN}✓ Git commit created{Colors.RESET}")
     
     except Exception as e:
-        print(f"{Colors.RED}Git commit failed: {e}{Colors.RESET}")
+        logging.error(f"{Colors.RED}Git commit failed: {e}{Colors.RESET}")
 
 def process_session_file(session_file: Path):
     """Process a single session file"""
-    print(f"\n{Colors.BLUE}{'='*60}{Colors.RESET}")
-    print(f"{Colors.BLUE}Processing: {session_file.name}{Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*60}{Colors.RESET}")
+    logging.info(f"\n{Colors.BLUE}{'='*60}{Colors.RESET}")
+    logging.info(f"{Colors.BLUE}Processing: {session_file.name}{Colors.RESET}")
+    logging.info(f"{Colors.BLUE}{'='*60}{Colors.RESET}")
     
     canon_data = parse_canon_update(session_file)
     
     if not canon_data:
-        print(f"{Colors.YELLOW}No CANON_UPDATE block found{Colors.RESET}")
+        logging.warning(f"{Colors.YELLOW}No CANON_UPDATE block found{Colors.RESET}")
         return
     
     session_id = session_file.stem
@@ -503,10 +504,10 @@ def process_session_file(session_file: Path):
 
 def watch_sessions():
     """Monitor sessions directory for new files"""
-    print(f"\n{Colors.BLUE}{'='*60}{Colors.RESET}")
-    print(f"{Colors.BLUE}STRAY DOGS WORLDENGINE - ENGINE SYNC{Colors.RESET}")
-    print(f"{Colors.BLUE}Monitoring: {SESSIONS_DIR}{Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*60}{Colors.RESET}\n")
+    logging.info(f"\n{Colors.BLUE}{'='*60}{Colors.RESET}")
+    logging.info(f"{Colors.BLUE}STRAY DOGS WORLDENGINE - ENGINE SYNC{Colors.RESET}")
+    logging.info(f"{Colors.BLUE}Monitoring: {SESSIONS_DIR}{Colors.RESET}")
+    logging.info(f"{Colors.BLUE}{'='*60}{Colors.RESET}\n")
     
     processed_files = set()
     
@@ -519,7 +520,7 @@ def watch_sessions():
                 process_session_file(session_file)
                 processed_files.add(session_file)
     
-    print(f"\n{Colors.GREEN}Watching for new sessions... (Ctrl+C to stop){Colors.RESET}\n")
+    logging.info(f"\n{Colors.GREEN}Watching for new sessions... (Ctrl+C to stop){Colors.RESET}\n")
     
     # Watch for new files
     try:
@@ -537,7 +538,7 @@ def watch_sessions():
                     processed_files.add(session_file)
     
     except KeyboardInterrupt:
-        print(f"\n{Colors.BLUE}Engine sync stopped{Colors.RESET}\n")
+        logging.info(f"\n{Colors.BLUE}Engine sync stopped{Colors.RESET}\n")
 
 def main():
     """Main function"""
@@ -549,12 +550,13 @@ def main():
         if session_file.exists():
             process_session_file(session_file)
         else:
-            print(f"{Colors.RED}File not found: {session_file}{Colors.RESET}")
+            logging.error(f"{Colors.RED}File not found: {session_file}{Colors.RESET}")
     else:
         # Watch mode
         watch_sessions()
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     main()
 ```
 
