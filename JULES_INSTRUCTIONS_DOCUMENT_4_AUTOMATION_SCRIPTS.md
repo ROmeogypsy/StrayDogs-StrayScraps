@@ -5,6 +5,21 @@
 
 ---
 
+## **SHARED MODULE: `colors.py`**
+
+**Purpose**: Shared color definitions for terminal output.
+
+```python
+class Colors:
+    GREEN = "\033[92m"
+    RED = "\033[91m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    RESET = "\033[0m"
+```
+
+---
+
 ## **SCRIPT 1: `tag_validator.py`**
 
 **Purpose**: Ensures all tags used in repository files exist in the master tag list.
@@ -39,12 +54,10 @@ TAGS_FILE = REPO_ROOT / "meta" / "tags.md"
 TAG_VARIATIONS_FILE = REPO_ROOT / "meta" / "tag_variations.md"
 
 # Colors for terminal output
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
+try:
+    from colors import Colors
+except ImportError:
+    from scripts.colors import Colors
 
 def load_valid_tags() -> Set[str]:
     """Load all valid tags from tags.md and tag_variations.md"""
@@ -238,12 +251,10 @@ CHARS_DIR = REPO_ROOT / "chars"
 TENSIONS_DIR = REPO_ROOT / "tensions"
 EVENTS_DIR = REPO_ROOT / "events"
 
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
+try:
+    from colors import Colors
+except ImportError:
+    from scripts.colors import Colors
 
 def parse_canon_update(session_file: Path) -> Optional[Dict[str, Any]]:
     """Extract CANON_UPDATE YAML block from session file"""
@@ -759,7 +770,8 @@ mkdir -p scripts
 
 ### **Step 2: Copy Scripts**
 
-Save the three Python files above as:
+Save the four Python files above as:
+- `scripts/colors.py`
 - `scripts/tag_validator.py`
 - `scripts/engine_sync.py`
 - `scripts/cross_ref_builder.py`
@@ -892,7 +904,7 @@ python scripts/tag_validator.py
 When building repository:
 
 ✅ **Create `scripts/` directory**
-✅ **Add all three Python scripts**
+✅ **Add all four Python scripts**
 ✅ **Test tag_validator.py runs without errors**
 ✅ **Test cross_ref_builder.py generates meta/cross_reference.md**
 ✅ **Document script usage in README.md**

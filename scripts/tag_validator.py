@@ -14,13 +14,10 @@ REPO_ROOT = Path(__file__).parent.parent  # Assumes script is in scripts/
 TAGS_FILE = REPO_ROOT / "meta" / "tags.md"
 TAG_VARIATIONS_FILE = REPO_ROOT / "meta" / "tag_variations.md"
 
-# Colors for terminal output
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
+try:
+    from colors import Colors
+except ImportError:
+    from scripts.colors import Colors
 
 def load_valid_tags() -> Set[str]:
     """Load all valid tags from tags.md and tag_variations.md"""
