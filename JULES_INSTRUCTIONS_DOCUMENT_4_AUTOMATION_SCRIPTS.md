@@ -5,6 +5,27 @@
 
 ---
 
+## **SCRIPT 0: `utils.py`**
+
+**Purpose**: Shared utilities for automation scripts.
+
+```python
+#!/usr/bin/env python3
+"""
+Shared utilities for Stray Dogs Worldengine automation scripts
+"""
+
+class Colors:
+    """ANSI color codes for terminal output"""
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    RESET = '\033[0m'
+```
+
+---
+
 ## **SCRIPT 1: `tag_validator.py`**
 
 **Purpose**: Ensures all tags used in repository files exist in the master tag list.
@@ -20,19 +41,12 @@ import os
 import re
 from pathlib import Path
 from typing import Set, Dict, List
+from utils import Colors
 
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent  # Assumes script is in scripts/
 TAGS_FILE = REPO_ROOT / "meta" / "tags.md"
 TAG_VARIATIONS_FILE = REPO_ROOT / "meta" / "tag_variations.md"
-
-# Colors for terminal output
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
 
 def load_valid_tags() -> Set[str]:
     """Load all valid tags from tags.md and tag_variations.md"""
@@ -201,6 +215,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional
 import time
+from utils import Colors
 
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent
@@ -208,13 +223,6 @@ SESSIONS_DIR = REPO_ROOT / "sessions"
 CHARS_DIR = REPO_ROOT / "chars"
 TENSIONS_DIR = REPO_ROOT / "tensions"
 EVENTS_DIR = REPO_ROOT / "events"
-
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
 
 def parse_canon_update(session_file: Path) -> Optional[Dict[str, Any]]:
     """Extract CANON_UPDATE YAML block from session file"""
@@ -540,6 +548,7 @@ import re
 from pathlib import Path
 from typing import Dict, Set, List
 from collections import defaultdict
+from utils import Colors
 
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent
@@ -547,12 +556,6 @@ CHARS_DIR = REPO_ROOT / "chars"
 LOCATIONS_DIR = REPO_ROOT / "locations"
 FACTIONS_DIR = REPO_ROOT / "factions"
 OUTPUT_FILE = REPO_ROOT / "meta" / "cross_reference.md"
-
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
 
 def extract_yaml_tags(filepath: Path) -> Dict[str, List[str]]:
     """Extract tags from YAML frontmatter"""
@@ -715,7 +718,8 @@ mkdir -p scripts
 
 ### **Step 2: Copy Scripts**
 
-Save the three Python files above as:
+Save the four Python files above as:
+- `scripts/utils.py`
 - `scripts/tag_validator.py`
 - `scripts/engine_sync.py`
 - `scripts/cross_ref_builder.py`
@@ -848,7 +852,7 @@ python scripts/tag_validator.py
 When building repository:
 
 ✅ **Create `scripts/` directory**
-✅ **Add all three Python scripts**
+✅ **Add all four Python scripts**
 ✅ **Test tag_validator.py runs without errors**
 ✅ **Test cross_ref_builder.py generates meta/cross_reference.md**
 ✅ **Document script usage in README.md**
