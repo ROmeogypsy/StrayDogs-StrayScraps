@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Set, Dict, List
 
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent  # Assumes script is in scripts/
+REPO_ROOT = next((p for p in Path(__file__).resolve().parents if (p / ".git").exists() or (p / "README.md").exists()), Path(__file__).parent.parent)  # Assumes script is in scripts/ (fallback)
 TAGS_FILE = REPO_ROOT / "meta" / "tags.md"
 TAG_VARIATIONS_FILE = REPO_ROOT / "meta" / "tag_variations.md"
 
@@ -203,7 +203,7 @@ from typing import Dict, Any, Optional
 import time
 
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent
+REPO_ROOT = next((p for p in Path(__file__).resolve().parents if (p / ".git").exists() or (p / "README.md").exists()), Path(__file__).parent.parent)
 SESSIONS_DIR = REPO_ROOT / "sessions"
 CHARS_DIR = REPO_ROOT / "chars"
 TENSIONS_DIR = REPO_ROOT / "tensions"
@@ -542,7 +542,7 @@ from typing import Dict, Set, List
 from collections import defaultdict
 
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent
+REPO_ROOT = next((p for p in Path(__file__).resolve().parents if (p / ".git").exists() or (p / "README.md").exists()), Path(__file__).parent.parent)
 CHARS_DIR = REPO_ROOT / "chars"
 LOCATIONS_DIR = REPO_ROOT / "locations"
 FACTIONS_DIR = REPO_ROOT / "factions"
