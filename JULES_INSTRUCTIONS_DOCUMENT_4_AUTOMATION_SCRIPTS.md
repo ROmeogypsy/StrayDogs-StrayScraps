@@ -537,6 +537,7 @@ Analyzes all files and builds relationship maps
 """
 
 import re
+import logging
 from pathlib import Path
 from typing import Dict, Set, List
 from collections import defaultdict
@@ -547,12 +548,6 @@ CHARS_DIR = REPO_ROOT / "chars"
 LOCATIONS_DIR = REPO_ROOT / "locations"
 FACTIONS_DIR = REPO_ROOT / "factions"
 OUTPUT_FILE = REPO_ROOT / "meta" / "cross_reference.md"
-
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
 
 def extract_yaml_tags(filepath: Path) -> Dict[str, List[str]]:
     """Extract tags from YAML frontmatter"""
@@ -590,7 +585,7 @@ def extract_yaml_tags(filepath: Path) -> Dict[str, List[str]]:
         return tag_dict
     
     except Exception as e:
-        print(f"{Colors.RED}Error reading {filepath}: {e}{Colors.RESET}")
+        logging.error(f"Error reading {filepath}: {e}")
         return {}
 
 def build_character_location_map() -> Dict[str, Dict[str, Set[str]]]:
@@ -637,7 +632,7 @@ def build_relationship_map() -> Dict[str, Set[str]]:
 
 def generate_cross_reference():
     """Generate complete cross-reference markdown"""
-    print(f"\n{Colors.BLUE}Building cross-reference map...{Colors.RESET}\n")
+    logging.info("Building cross-reference map...")
     
     loc_map = build_character_location_map()
     rel_map = build_relationship_map()
@@ -680,16 +675,17 @@ def generate_cross_reference():
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         f.write(''.join(output))
     
-    print(f"{Colors.GREEN}✓ Cross-reference generated: {OUTPUT_FILE}{Colors.RESET}")
-    print(f"{Colors.BLUE}  - Characters mapped: {len(loc_map['char_to_locations'])}{Colors.RESET}")
-    print(f"{Colors.BLUE}  - Locations mapped: {len(loc_map['location_to_chars'])}{Colors.RESET}")
-    print(f"{Colors.BLUE}  - Relationships: {len(rel_map)}{Colors.RESET}\n")
+    logging.info(f"Cross-reference generated: {OUTPUT_FILE}")
+    logging.info(f"  - Characters mapped: {len(loc_map['char_to_locations'])}")
+    logging.info(f"  - Locations mapped: {len(loc_map['location_to_chars'])}")
+    logging.info(f"  - Relationships: {len(rel_map)}")
 
 def main():
     """Main function"""
-    print(f"\n{Colors.BLUE}{'='*60}{Colors.RESET}")
-    print(f"{Colors.BLUE}STRAY DOGS WORLDENGINE - CROSS-REFERENCE BUILDER{Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*60}{Colors.RESET}")
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logging.info("="*60)
+    logging.info("STRAY DOGS WORLDENGINE - CROSS-REFERENCE BUILDER")
+    logging.info("="*60)
     
     generate_cross_reference()
 
