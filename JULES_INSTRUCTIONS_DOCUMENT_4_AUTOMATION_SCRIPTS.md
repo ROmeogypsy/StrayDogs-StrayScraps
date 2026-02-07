@@ -43,9 +43,11 @@ def load_valid_tags() -> Set[str]:
         with open(TAGS_FILE, 'r', encoding='utf-8') as f:
             content = f.read()
             # Find all #Tags in the file
-            tags = re.findall(r'#\w+', content)
-            valid_tags.update(tags)
-            print(f"{Colors.BLUE}Loaded {len(tags)} canonical tags from tags.md{Colors.RESET}")
+            count = 0
+            for match in re.finditer(r'#\w+', content):
+                valid_tags.add(match.group(0))
+                count += 1
+            print(f"{Colors.BLUE}Loaded {count} canonical tags from tags.md{Colors.RESET}")
     else:
         print(f"{Colors.RED}ERROR: {TAGS_FILE} not found!{Colors.RESET}")
         return set()
@@ -54,9 +56,11 @@ def load_valid_tags() -> Set[str]:
     if TAG_VARIATIONS_FILE.exists():
         with open(TAG_VARIATIONS_FILE, 'r', encoding='utf-8') as f:
             content = f.read()
-            variations = re.findall(r'#\w+', content)
-            valid_tags.update(variations)
-            print(f"{Colors.BLUE}Loaded {len(variations)} tag variations from tag_variations.md{Colors.RESET}")
+            count = 0
+            for match in re.finditer(r'#\w+', content):
+                valid_tags.add(match.group(0))
+                count += 1
+            print(f"{Colors.BLUE}Loaded {count} tag variations from tag_variations.md{Colors.RESET}")
     else:
         print(f"{Colors.YELLOW}WARNING: {TAG_VARIATIONS_FILE} not found, using only canonical tags{Colors.RESET}")
     
