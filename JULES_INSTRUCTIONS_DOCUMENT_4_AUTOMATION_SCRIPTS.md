@@ -199,8 +199,9 @@ import re
 import yaml
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import time
+import shlex
 
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent
@@ -288,11 +289,11 @@ def find_character_file(char_name: str) -> Optional[Path]:
     print(f"{Colors.YELLOW}Warning: Character file not found for '{char_name}'{Colors.RESET}")
     return None
 
-def update_character(char_name: str, changes: Dict[str, Any], session_id: str) -> bool:
+def update_character(char_name: str, changes: Dict[str, Any], session_id: str) -> Optional[Path]:
     """Update character markdown file with new status/changes"""
     char_file = find_character_file(char_name)
     if not char_file:
-        return False
+        return None
     
     try:
         with open(char_file, 'r', encoding='utf-8') as f:
@@ -338,13 +339,13 @@ def update_character(char_name: str, changes: Dict[str, Any], session_id: str) -
             f.write(content)
         
         print(f"{Colors.GREEN}✓ Updated {char_name}{Colors.RESET}")
-        return True
+        return char_file
     
     except Exception as e:
         print(f"{Colors.RED}Error updating {char_name}: {e}{Colors.RESET}")
-        return False
+        return None
 
-def update_tension(tension_name: str, changes: Dict[str, Any], session_id: str) -> bool:
+def update_tension(tension_name: str, changes: Dict[str, Any], session_id: str) -> Optional[Path]:
     """Update tension markdown file with new developments"""
     # Convert name to filename
     filename = tension_name.lower().replace(' ', '_') + '.md'
@@ -352,7 +353,7 @@ def update_tension(tension_name: str, changes: Dict[str, Any], session_id: str) 
     
     if not tension_file.exists():
         print(f"{Colors.YELLOW}Warning: Tension file not found for '{tension_name}'{Colors.RESET}")
-        return False
+        return None
     
     try:
         with open(tension_file, 'r', encoding='utf-8') as f:
@@ -389,45 +390,54 @@ def update_tension(tension_name: str, changes: Dict[str, Any], session_id: str) 
             f.write(content)
         
         print(f"{Colors.GREEN}✓ Updated tension: {tension_name}{Colors.RESET}")
-        return True
+        return tension_file
     
     except Exception as e:
         print(f"{Colors.RED}Error updating tension {tension_name}: {e}{Colors.RESET}")
-        return False
+        return None
 
-def apply_canon_updates(canon_data: Dict[str, Any], session_id: str):
+def apply_canon_updates(canon_data: Dict[str, Any], session_id: str) -> List[Path]:
     """Apply all canon updates from session"""
     print(f"\n{Colors.BLUE}Applying canon updates from {session_id}...{Colors.RESET}\n")
     
-    updates_applied = 0
+    modified_files = []
     
     # Update characters
     if 'characters' in canon_data:
         for char_name, changes in canon_data['characters'].items():
-            if update_character(char_name, changes, session_id):
-                updates_applied += 1
+            path = update_character(char_name, changes, session_id)
+            if path:
+                modified_files.append(path)
     
     # Update tensions
     if 'tensions' in canon_data:
         for tension_name, changes in canon_data['tensions'].items():
-            if update_tension(tension_name, changes, session_id):
-                updates_applied += 1
+            path = update_tension(tension_name, changes, session_id)
+            if path:
+                modified_files.append(path)
     
     # Create new events if specified
     if 'new_events' in canon_data:
         for event in canon_data['new_events']:
             # This would create new event files - simplified for now
             print(f"{Colors.BLUE}→ New event logged: {event.get('title', 'Unnamed Event')}{Colors.RESET}")
-            updates_applied += 1
+            # If creating new files, append paths here
+            # modified_files.append(new_event_path)
     
-    print(f"\n{Colors.GREEN}Applied {updates_applied} canon update(s){Colors.RESET}")
-    return updates_applied
+    print(f"\n{Colors.GREEN}Applied {len(modified_files)} canon update(s){Colors.RESET}")
+    return modified_files
 
-def git_commit(session_id: str, summary: str):
+def git_commit(session_id: str, summary: str, modified_files: List[Path] = None):
     """Commit changes to git"""
     try:
-        # Git add all changes
-        os.system('git add .')
+        # Stage only modified files if provided
+        if modified_files:
+            # Use shlex.quote to handle spaces in filenames safely
+            files_str = ' '.join(shlex.quote(str(p)) for p in modified_files)
+            os.system(f'git add {files_str}')
+        else:
+            # Fallback to adding all changes
+            os.system('git add .')
         
         # Create commit message
         commit_msg = f"Update canon: Session {session_id}\n\n{summary}"
@@ -451,11 +461,11 @@ def process_session_file(session_file: Path):
         return
     
     session_id = session_file.stem
-    updates = apply_canon_updates(canon_data, session_id)
+    modified_files = apply_canon_updates(canon_data, session_id)
     
-    if updates > 0:
+    if modified_files:
         summary = canon_data.get('scene_summary', 'Canon updates applied')
-        git_commit(session_id, summary)
+        git_commit(session_id, summary, modified_files)
 
 def watch_sessions():
     """Monitor sessions directory for new files"""
