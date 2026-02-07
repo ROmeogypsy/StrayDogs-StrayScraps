@@ -194,7 +194,7 @@ Engine Sync for Stray Dogs Worldengine
 Monitors session files and updates canon based on CANON_UPDATE YAML blocks
 """
 
-import os
+import subprocess
 import re
 import yaml
 from pathlib import Path
@@ -427,11 +427,11 @@ def git_commit(session_id: str, summary: str):
     """Commit changes to git"""
     try:
         # Git add all changes
-        os.system('git add .')
+        subprocess.run(['git', 'add', '.'], check=True)
         
         # Create commit message
         commit_msg = f"Update canon: Session {session_id}\n\n{summary}"
-        os.system(f'git commit -m "{commit_msg}"')
+        subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
         
         print(f"{Colors.GREEN}✓ Git commit created{Colors.RESET}")
     
