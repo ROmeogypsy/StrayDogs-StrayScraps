@@ -19,12 +19,11 @@ CHARS_DIR = REPO_ROOT / "chars"
 TENSIONS_DIR = REPO_ROOT / "tensions"
 EVENTS_DIR = REPO_ROOT / "events"
 
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
+try:
+    from colors import Colors
+except ImportError:
+    from scripts.colors import Colors
+
 
 def parse_canon_update(session_file: Path) -> Optional[Dict[str, Any]]:
     """Extract CANON_UPDATE YAML block from session file"""

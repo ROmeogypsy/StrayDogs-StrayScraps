@@ -16,11 +16,10 @@ LOCATIONS_DIR = REPO_ROOT / "locations"
 FACTIONS_DIR = REPO_ROOT / "factions"
 OUTPUT_FILE = REPO_ROOT / "meta" / "cross_reference.md"
 
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
+try:
+    from colors import Colors
+except ImportError:
+    from scripts.colors import Colors
 
 def extract_yaml_tags(filepath: Path) -> Dict[str, List[str]]:
     """Extract tags from YAML frontmatter"""
