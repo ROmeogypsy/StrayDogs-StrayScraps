@@ -244,8 +244,14 @@ def parse_canon_update(session_file: Path) -> Optional[Dict[str, Any]]:
         
         return canon_data
     
+    except FileNotFoundError:
+        print(f"{Colors.RED}Error: File not found {session_file}{Colors.RESET}")
+        return None
+    except yaml.YAMLError as e:
+        print(f"{Colors.RED}Error parsing YAML in {session_file}: {e}{Colors.RESET}")
+        return None
     except Exception as e:
-        print(f"{Colors.RED}Error parsing {session_file}: {e}{Colors.RESET}")
+        print(f"{Colors.RED}Unexpected error parsing {session_file}: {e}{Colors.RESET}")
         return None
 
 def find_character_file(char_name: str) -> Optional[Path]:
