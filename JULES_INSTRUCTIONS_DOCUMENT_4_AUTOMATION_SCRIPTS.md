@@ -83,7 +83,7 @@ def extract_tags_from_file(filepath: Path) -> Set[str]:
         
         return yaml_tags | inline_tags
     
-    except Exception as e:
+    except (OSError, UnicodeDecodeError) as e:
         print(f"{Colors.RED}Error reading {filepath}: {e}{Colors.RESET}")
         return set()
 
@@ -244,7 +244,7 @@ def parse_canon_update(session_file: Path) -> Optional[Dict[str, Any]]:
         
         return canon_data
     
-    except Exception as e:
+    except (OSError, UnicodeDecodeError, yaml.YAMLError) as e:
         print(f"{Colors.RED}Error parsing {session_file}: {e}{Colors.RESET}")
         return None
 
@@ -340,7 +340,7 @@ def update_character(char_name: str, changes: Dict[str, Any], session_id: str) -
         print(f"{Colors.GREEN}✓ Updated {char_name}{Colors.RESET}")
         return True
     
-    except Exception as e:
+    except (OSError, UnicodeDecodeError) as e:
         print(f"{Colors.RED}Error updating {char_name}: {e}{Colors.RESET}")
         return False
 
@@ -391,7 +391,7 @@ def update_tension(tension_name: str, changes: Dict[str, Any], session_id: str) 
         print(f"{Colors.GREEN}✓ Updated tension: {tension_name}{Colors.RESET}")
         return True
     
-    except Exception as e:
+    except (OSError, UnicodeDecodeError) as e:
         print(f"{Colors.RED}Error updating tension {tension_name}: {e}{Colors.RESET}")
         return False
 
@@ -589,7 +589,7 @@ def extract_yaml_tags(filepath: Path) -> Dict[str, List[str]]:
         
         return tag_dict
     
-    except Exception as e:
+    except (OSError, UnicodeDecodeError) as e:
         print(f"{Colors.RED}Error reading {filepath}: {e}{Colors.RESET}")
         return {}
 
