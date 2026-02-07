@@ -583,7 +583,7 @@ Analyzes all files and builds relationship maps
 import re
 import logging
 from pathlib import Path
-from typing import Dict, Set, List
+from typing import Dict, Set, List, Tuple
 from collections import defaultdict
 
 # Configuration
@@ -644,10 +644,11 @@ def extract_yaml_tags(filepath: Path) -> Dict[str, List[str]]:
         logging.error(f"Error reading {filepath}: {e}")
         return {}
 
-def build_character_location_map() -> Dict[str, Dict[str, Set[str]]]:
-    """Build map of characters to locations and vice versa"""
+def build_maps() -> Tuple[Dict[str, Dict[str, Set[str]]], Dict[str, Set[str]]]:
+    """Build character-location map and relationship map in a single pass"""
     char_to_locations = defaultdict(set)
     location_to_chars = defaultdict(set)
+    relationships = defaultdict(set)
     
     # Scan all character files
     for char_file in CHARS_DIR.rglob("*.md"):
@@ -657,41 +658,32 @@ def build_character_location_map() -> Dict[str, Dict[str, Set[str]]]:
         tags = extract_yaml_tags(char_file)
         char_tag = tags.get('character', [''])[0] if 'character' in tags else ''
         
-        if char_tag and 'locations' in tags:
+        if not char_tag:
+            continue
+
+        if 'locations' in tags:
             for loc_tag in tags['locations']:
                 char_to_locations[char_tag].add(loc_tag)
                 location_to_chars[loc_tag].add(char_tag)
-    
-    return {
-        'char_to_locations': dict(char_to_locations),
-        'location_to_chars': dict(location_to_chars)
-    }
-
-def build_relationship_map() -> Dict[str, Set[str]]:
-    """Build map of character relationships"""
-    relationships = defaultdict(set)
-    
-    for char_file in CHARS_DIR.rglob("*.md"):
-        if '00_' in char_file.name:
-            continue
         
-        tags = extract_yaml_tags(char_file)
-        char_tag = tags.get('character', [''])[0] if 'character' in tags else ''
-        
-        if char_tag and 'relationships' in tags:
+        if 'relationships' in tags:
             for rel_tag in tags['relationships']:
                 relationships[char_tag].add(rel_tag)
                 # Bidirectional
                 relationships[rel_tag].add(char_tag)
     
-    return dict(relationships)
+    loc_map = {
+        'char_to_locations': dict(char_to_locations),
+        'location_to_chars': dict(location_to_chars)
+    }
+
+    return loc_map, dict(relationships)
 
 def generate_cross_reference():
     """Generate complete cross-reference markdown"""
     logging.info("Building cross-reference map...")
     
-    loc_map = build_character_location_map()
-    rel_map = build_relationship_map()
+    loc_map, rel_map = build_maps()
     
     output = []
     output.append("# Cross-Reference Map\n")
