@@ -22,7 +22,19 @@ from pathlib import Path
 from typing import Set, Dict, List
 
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent  # Assumes script is in scripts/
+
+def get_repo_root() -> Path:
+    """Find repository root by looking for marker files (.git, README.md)"""
+    current = Path(__file__).resolve().parent
+    for _ in range(5):
+        if (current / ".git").exists() or (current / "README.md").exists():
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    return Path(__file__).parent.parent
+
+REPO_ROOT = get_repo_root()
 TAGS_FILE = REPO_ROOT / "meta" / "tags.md"
 TAG_VARIATIONS_FILE = REPO_ROOT / "meta" / "tag_variations.md"
 
@@ -203,7 +215,19 @@ from typing import Dict, Any, Optional
 import time
 
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent
+
+def get_repo_root() -> Path:
+    """Find repository root by looking for marker files (.git, README.md)"""
+    current = Path(__file__).resolve().parent
+    for _ in range(5):
+        if (current / ".git").exists() or (current / "README.md").exists():
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    return Path(__file__).parent.parent
+
+REPO_ROOT = get_repo_root()
 SESSIONS_DIR = REPO_ROOT / "sessions"
 CHARS_DIR = REPO_ROOT / "chars"
 TENSIONS_DIR = REPO_ROOT / "tensions"
@@ -542,7 +566,19 @@ from typing import Dict, Set, List
 from collections import defaultdict
 
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent
+
+def get_repo_root() -> Path:
+    """Find repository root by looking for marker files (.git, README.md)"""
+    current = Path(__file__).resolve().parent
+    for _ in range(5):
+        if (current / ".git").exists() or (current / "README.md").exists():
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    return Path(__file__).parent.parent
+
+REPO_ROOT = get_repo_root()
 CHARS_DIR = REPO_ROOT / "chars"
 LOCATIONS_DIR = REPO_ROOT / "locations"
 FACTIONS_DIR = REPO_ROOT / "factions"
