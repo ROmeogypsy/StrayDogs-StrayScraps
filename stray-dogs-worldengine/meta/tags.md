@@ -143,6 +143,12 @@
 - `#Fibonacci` - "THE DARKEST LIGHT" structure, mathematical flow
 
 **Temporal:**
+- `#Pre2010` - North Ends decline, systemic neglect, pre-founding conditions
+- `#2009` - Birth year of Stray, Zed/Rax, Scraps/Harper
+- `#2010` - Birth year of K-9
+- `#FormativeYears` - 2009-2015, childhood, Shaw training Stray, Big 9's awakening
+- `#BeforeThePack` - 2016-2019, Big 9's informal patrols, Dame/Snout convergence
+- `#2020` - Founding year, Stray Dogs established
 - `#GraveyardShift` - 2-6 AM protection, Stray's domain
 - `#634AM` - Alistair's clockwork patrol
 - `#February2026` - Current moment, winter
@@ -166,6 +172,24 @@
 - `#ElitePrivilege` - Academy advantages
 - `#Poverty` - North Ends reality
 - `#DesignerStreetWear` - West End aesthetic
+
+**Pre-Founding Events:**
+- `#NorthEndsDecline` - Decades of police withdrawal, council defunding, institutional decay
+- `#PoliceWithdrawal` - Metropolitan Police reduced patrols through 1990s-2000s
+- `#CouncilDefunding` - Youth centres, community centres, libraries shuttered
+- `#RedLightExploitation` - Pre-Dog pimp networks taking 50-70% of worker earnings
+- `#PimpNetworks` - Exploitative operations before Dog protection
+- `#WestEndConsolidation` - Loose crews becoming organised gang, pre-2010
+- `#HavenwoodClosed` - Care centre closed under sealed circumstances
+- `#Big9Awakening` - Age 16+, informal street protection, Snout notices
+- `#ShawsTraining` - Captain Shaw training Stray: combat, discipline, lip-reading
+- `#CaravanLife` - Shaw and Stray's home in the North Ends
+- `#TwinsSplit` - Rax to Academy, Zed stays NEPH, paths diverge
+- `#HarperGroomed` - West End Gang shaping Scraps as "Prince"
+- `#DameMeetsBig9` - ~2017, documentation meets protection
+- `#InformalPatrols` - Big 9's pre-founding lone wolf protection phase
+- `#FirstRedLightIntervention` - Big 9 removes pimp who hospitalised worker
+- `#TheConvergence` - Big 9, Dame, Snout recognise the void and plan together
 
 **Systemic Violence:**
 - `#PrisonPipeline` - NEPH design, future inmates
