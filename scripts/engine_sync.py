@@ -12,19 +12,22 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 import time
 
+try:
+    from colors import Colors
+except ImportError:
+    try:
+        from scripts.colors import Colors
+    except ImportError:
+        # Fallback for when the script is run directly but colors.py is missing
+        # We don't define Colors here to avoid duplication.
+        raise ImportError("Could not import 'Colors' from 'colors.py'. Ensure the script is run from the repository root or 'scripts/' directory.")
+
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent
 SESSIONS_DIR = REPO_ROOT / "sessions"
 CHARS_DIR = REPO_ROOT / "chars"
 TENSIONS_DIR = REPO_ROOT / "tensions"
 EVENTS_DIR = REPO_ROOT / "events"
-
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
 
 def parse_canon_update(session_file: Path) -> Optional[Dict[str, Any]]:
     """Extract CANON_UPDATE YAML block from session file"""

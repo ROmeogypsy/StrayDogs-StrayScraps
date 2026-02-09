@@ -9,18 +9,22 @@ from pathlib import Path
 from typing import Dict, Set, List
 from collections import defaultdict
 
+try:
+    from colors import Colors
+except ImportError:
+    try:
+        from scripts.colors import Colors
+    except ImportError:
+        # Fallback for when the script is run directly but colors.py is missing
+        # We don't define Colors here to avoid duplication.
+        raise ImportError("Could not import 'Colors' from 'colors.py'. Ensure the script is run from the repository root or 'scripts/' directory.")
+
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent
 CHARS_DIR = REPO_ROOT / "chars"
 LOCATIONS_DIR = REPO_ROOT / "locations"
 FACTIONS_DIR = REPO_ROOT / "factions"
 OUTPUT_FILE = REPO_ROOT / "meta" / "cross_reference.md"
-
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
 
 def extract_yaml_tags(filepath: Path) -> Dict[str, List[str]]:
     """Extract tags from YAML frontmatter"""
