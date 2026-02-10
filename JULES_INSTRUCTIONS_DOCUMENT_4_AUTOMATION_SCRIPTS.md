@@ -46,7 +46,7 @@ except ImportError:
         raise ImportError("Could not import 'Colors' from 'colors.py'. Ensure the script is run from the repository root or 'scripts/' directory.")
 
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent  # Assumes script is in scripts/
+REPO_ROOT = next((p for p in Path(__file__).resolve().parents if (p / ".git").exists() or (p / "README.md").exists()), Path(__file__).parent.parent)  # Assumes script is in scripts/ (fallback)
 TAGS_FILE = REPO_ROOT / "meta" / "tags.md"
 TAG_VARIATIONS_FILE = REPO_ROOT / "meta" / "tag_variations.md"
 
@@ -230,7 +230,7 @@ except ImportError:
         raise ImportError("Could not import 'Colors' from 'colors.py'. Ensure the script is run from the repository root or 'scripts/' directory.")
 
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent
+REPO_ROOT = next((p for p in Path(__file__).resolve().parents if (p / ".git").exists() or (p / "README.md").exists()), Path(__file__).parent.parent)
 SESSIONS_DIR = REPO_ROOT / "sessions"
 CHARS_DIR = REPO_ROOT / "chars"
 TENSIONS_DIR = REPO_ROOT / "tensions"
@@ -877,7 +877,7 @@ except ImportError:
         raise ImportError("Could not import 'Colors' from 'colors.py'. Ensure the script is run from the repository root or 'scripts/' directory.")
 
 # Configuration
-REPO_ROOT = Path(__file__).parent.parent
+REPO_ROOT = next((p for p in Path(__file__).resolve().parents if (p / ".git").exists() or (p / "README.md").exists()), Path(__file__).parent.parent)
 CHARS_DIR = REPO_ROOT / "chars"
 LOCATIONS_DIR = REPO_ROOT / "locations"
 FACTIONS_DIR = REPO_ROOT / "factions"
